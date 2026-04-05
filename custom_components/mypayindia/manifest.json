@@ -1,0 +1,10 @@
+{
+  "domain": "mypayindia",
+  "name": "MyPayIndia",
+  "version": "1.0.0",
+  "documentation": "",
+  "requirements": ["requests"],
+  "dependencies": [],
+  "codeowners": [],
+  "config_flow": true
+}
