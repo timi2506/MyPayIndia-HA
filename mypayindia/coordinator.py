@@ -40,8 +40,10 @@ class MyPayIndiaCoordinator(DataUpdateCoordinator):
 
             links_resp = self.session.get(f"{BASE_URL}/list_payment_links").json()
             if links_resp.get("success"):
-                links_data = links_resp.get("data", [{}])
-                if links_data and isinstance(links_data[0], dict):
+                links_data = links_resp.get("data")
+                if isinstance(links_data, dict):
+                    data["payment_links"] = links_data.get("links", [])
+                elif isinstance(links_data, list) and len(links_data) > 0 and isinstance(links_data[0], dict):
                     data["payment_links"] = links_data[0].get("links", [])
                 else:
                     data["payment_links"] = []
