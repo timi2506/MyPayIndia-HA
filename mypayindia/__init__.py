@@ -1,9 +1,11 @@
 import voluptuous as vol
+from pathlib import Path
 from homeassistant.core import HomeAssistant
+from homeassistant.components.http import StaticPathConfig
 from .const import DOMAIN
 from .coordinator import MyPayIndiaCoordinator
 
-PLATFORMS = ["sensor", "text", "number", "button"]
+PLATFORMS = ["sensor"]
 
 async def async_setup(hass: HomeAssistant, config: dict):
     hass.data.setdefault(DOMAIN, {})
@@ -18,6 +20,11 @@ async def async_setup_entry(hass: HomeAssistant, entry):
     
     await coordinator.async_config_entry_first_refresh()
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    files_path = Path(__file__).parent / "www"
+    await hass.http.async_register_static_paths([
+        StaticPathConfig("/mypayindia_static", str(files_path), True)
+    ])
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
