@@ -3,6 +3,8 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from .coordinator import MyPayIndiaCoordinator
 
+PLATFORMS = ["sensor", "text", "number", "button"]
+
 async def async_setup(hass: HomeAssistant, config: dict):
     hass.data.setdefault(DOMAIN, {})
     return True
@@ -17,7 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry):
     await coordinator.async_config_entry_first_refresh()
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
@@ -43,7 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry):
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry):
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
     return unload_ok

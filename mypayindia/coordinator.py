@@ -18,6 +18,9 @@ class MyPayIndiaCoordinator(DataUpdateCoordinator):
         self.username = username
         self.password = password
         self.session = requests.Session()
+        self.transfer_amount = 0.0
+        self.transfer_recipient = ""
+        self.transfer_note = ""
 
     def login(self):
         self.session.post(
