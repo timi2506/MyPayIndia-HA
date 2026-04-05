@@ -1,14 +1,14 @@
-class MyPayIndiaCard extends HTMLElement {
+class MyPayIndiaTransferCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
     if (!this.content) {
       this.innerHTML = `
-        <ha-card header="MyPayIndia Transfer">
+        <ha-card header="MyPayIndia - Send Money">
           <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
-            <ha-textfield id="recipient" label="Recipient"></ha-textfield>
+            <ha-textfield id="recipient" label="Recipient Username"></ha-textfield>
             <ha-textfield id="amount" label="Amount (INR)" type="number"></ha-textfield>
             <ha-textfield id="note" label="Note (Optional)"></ha-textfield>
-            <mwc-button id="send" raised label="Send Money"></mwc-button>
+            <mwc-button id="send" raised label="Send" icon="send" style="--mdc-theme-primary: var(--primary-color);"></mwc-button>
           </div>
         </ha-card>
       `;
@@ -33,17 +33,143 @@ class MyPayIndiaCard extends HTMLElement {
       });
     }
   }
-
   set hass(hass) {
     this._hass = hass;
   }
 }
 
-customElements.define('mypayindia-card', MyPayIndiaCard);
+class MyPayIndiaLinksCard extends HTMLElement {
+  setConfig(config) {
+    this.config = config;
+    this.entityId = config.entity || Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_total_active_links'));
+  }
+  set hass(hass) {
+    this._hass = hass;
+    if (!this.entityId) {
+        this.entityId = Object.keys(hass.states).find(eid => eid.startsWith('sensor.mypayindia_total_active_links'));
+    }
+    const stateObj = hass.states[this.entityId];
+    if (!stateObj) return;
+
+    const links = stateObj.attributes.links || [];
+    
+    let html = `<ha-card header="Active Payment Links">
+                  <div class="card-content" style="display: flex; flex-direction: column; gap: 12px;">`;
+    
+    if (links.length === 0) {
+        html += `<p style="color: var(--secondary-text-color);">No active payment links.</p>`;
+    } else {
+        links.forEach(link => {
+            html += `
+            <div style="padding: 12px; border: 1px solid var(--divider-color); border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="font-size: 1.1em;">${link.amount} INR</strong>
+                    <span style="color: var(--secondary-text-color);">${link.status}</span>
+                </div>
+                ${link.note ? `<div style="margin-bottom: 8px;"><em>"${link.note}"</em></div>` : ''}
+                <div style="font-size: 0.9em; word-break: break-all;">
+                    <a href="${link.claim_url}" target="_blank" style="color: var(--primary-color); text-decoration: none;">${link.claim_url}</a>
+                </div>
+            </div>`;
+        });
+    }
+    
+    html += `</div></ha-card>`;
+    this.innerHTML = html;
+  }
+}
+
+class MyPayIndiaHistoryCard extends HTMLElement {
+  setConfig(config) {
+    this.config = config;
+    this.entityId = config.entity || Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_total_transferred'));
+    this.balanceEntityId = Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_balance'));
+  }
+  set hass(hass) {
+    this._hass = hass;
+    if (!this.entityId) {
+        this.entityId = Object.keys(hass.states).find(eid => eid.startsWith('sensor.mypayindia_total_transferred'));
+    }
+    if (!this.balanceEntityId) {
+        this.balanceEntityId = Object.keys(hass.states).find(eid => eid.startsWith('sensor.mypayindia_balance'));
+    }
+
+    const stateObj = hass.states[this.entityId];
+    const balanceObj = hass.states[this.balanceEntityId];
+    if (!stateObj || !balanceObj) return;
+
+    const txns = stateObj.attributes.transactions || [];
+    const myUsername = balanceObj.attributes.username;
+    
+    let html = `<ha-card header="Transaction History">
+                  <div class="card-content" style="display: flex; flex-direction: column; gap: 8px;">`;
+    
+    if (txns.length === 0) {
+        html += `<p style="color: var(--secondary-text-color);">No recent transactions.</p>`;
+    } else {
+        txns.forEach(txn => {
+            const isSender = txn.sender_name === myUsername;
+            const amountColor = isSender ? 'var(--error-color)' : 'var(--success-color)';
+            const amountPrefix = isSender ? '-' : '+';
+            const relatedUser = isSender ? `To: ${txn.target_name}` : `From: ${txn.sender_name}`;
+            const date = new Date(txn.created).toLocaleString();
+
+            html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--divider-color);">
+                <div style="display: flex; flex-direction: column;">
+                    <strong>${relatedUser}</strong>
+                    <span style="font-size: 0.8em; color: var(--secondary-text-color);">${date}</span>
+                </div>
+                <div style="font-weight: bold; color: ${amountColor};">
+                    ${amountPrefix}${txn.amount} INR
+                </div>
+            </div>`;
+        });
+    }
+    
+    html += `</div></ha-card>`;
+    this.innerHTML = html;
+  }
+}
+
+class MyPayIndiaBalanceCard extends HTMLElement {
+  setConfig(config) {
+    this.config = config;
+    this.entityId = config.entity || Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_balance'));
+  }
+  set hass(hass) {
+    this._hass = hass;
+    if (!this.entityId) {
+        this.entityId = Object.keys(hass.states).find(eid => eid.startsWith('sensor.mypayindia_balance'));
+    }
+    const stateObj = hass.states[this.entityId];
+    if (!stateObj) return;
+
+    this.innerHTML = `
+      <ha-card>
+        <div class="card-content" style="text-align: center; padding: 32px 16px;">
+            <div style="font-size: 1.2em; color: var(--secondary-text-color); margin-bottom: 8px;">Available Balance</div>
+            <div style="font-size: 3em; font-weight: bold; color: var(--primary-text-color);">
+                ${stateObj.state} <span style="font-size: 0.5em; color: var(--secondary-text-color);">INR</span>
+            </div>
+            <div style="margin-top: 16px; font-size: 0.9em; color: var(--secondary-text-color);">
+                Account: ${stateObj.attributes.first_name} ${stateObj.attributes.last_name} (@${stateObj.attributes.username})
+            </div>
+        </div>
+      </ha-card>
+    `;
+  }
+}
+
+customElements.define('mypayindia-transfer-card', MyPayIndiaTransferCard);
+customElements.define('mypayindia-links-card', MyPayIndiaLinksCard);
+customElements.define('mypayindia-history-card', MyPayIndiaHistoryCard);
+customElements.define('mypayindia-balance-card', MyPayIndiaBalanceCard);
 
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "mypayindia-card",
-  name: "MyPayIndia Transfer Card",
-  description: "A custom UI for sending money via MyPayIndia."
-});
+window.customCards.push(
+  { type: "mypayindia-transfer-card", name: "MyPayIndia Transfer", description: "Send money via MyPayIndia" },
+  { type: "mypayindia-links-card", name: "MyPayIndia Links", description: "Active payment links" },
+  { type: "mypayindia-history-card", name: "MyPayIndia History", description: "Transaction history" },
+  { type: "mypayindia-balance-card", name: "MyPayIndia Balance", description: "Current balance" }
+);

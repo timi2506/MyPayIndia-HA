@@ -33,6 +33,7 @@ class MyPayIndiaBalanceSensor(CoordinatorEntity, SensorEntity):
             "first_name": data.get("first_name"),
             "last_name": data.get("last_name"),
             "email": data.get("email"),
+            "username": self.coordinator.username,
             "created": data.get("created"),
         }
 
@@ -47,6 +48,23 @@ class MyPayIndiaPaymentLinksSummarySensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         links = self.coordinator.data.get("payment_links", [])
         return len(links)
+
+    @property
+    def extra_state_attributes(self):
+        links = self.coordinator.data.get("payment_links", [])
+        formatted_links = []
+        for link in links:
+            token = link.get("token", "")
+            formatted_links.append({
+                "id": link.get("id"),
+                "token": token,
+                "amount": link.get("amount"),
+                "note": link.get("note"),
+                "status": link.get("status"),
+                "created": link.get("created"),
+                "claim_url": f"https://mypayindia.com/pay/link?token={token}" if token else None
+            })
+        return {"links": formatted_links}
 
 
 class MyPayIndiaTotalTransferredSensor(CoordinatorEntity, SensorEntity):
@@ -64,3 +82,8 @@ class MyPayIndiaTotalTransferredSensor(CoordinatorEntity, SensorEntity):
             if txn.get("sender_name") == self.coordinator.username:
                 total += float(txn.get("amount", 0))
         return round(total, 2)
+
+    @property
+    def extra_state_attributes(self):
+        txns = self.coordinator.data.get("transactions", [])
+        return {"transactions": txns}
