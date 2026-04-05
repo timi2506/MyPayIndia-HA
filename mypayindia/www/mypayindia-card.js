@@ -8,7 +8,7 @@ class MyPayIndiaTransferCard extends HTMLElement {
             <ha-textfield id="recipient" label="Recipient Username"></ha-textfield>
             <ha-textfield id="amount" label="Amount (INR)" type="number"></ha-textfield>
             <ha-textfield id="note" label="Note (Optional)"></ha-textfield>
-            <mwc-button id="send" raised label="Send" icon="send" style="--mdc-theme-primary: var(--primary-color);"></mwc-button>
+            <ha-button raised id="send" style="width: 100%; justify-content: center;">Send Money</ha-button>
           </div>
         </ha-card>
       `;
@@ -29,6 +29,42 @@ class MyPayIndiaTransferCard extends HTMLElement {
             this.querySelector('#recipient').value = '';
             this.querySelector('#amount').value = '';
             this.querySelector('#note').value = '';
+        }
+      });
+    }
+  }
+  set hass(hass) {
+    this._hass = hass;
+  }
+}
+
+class MyPayIndiaCreateLinkCard extends HTMLElement {
+  setConfig(config) {
+    this.config = config;
+    if (!this.content) {
+      this.innerHTML = `
+        <ha-card header="Create Payment Link">
+          <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
+            <ha-textfield id="link_amount" label="Amount (INR)" type="number"></ha-textfield>
+            <ha-textfield id="link_note" label="Note (Optional)"></ha-textfield>
+            <ha-button raised id="create_link" style="width: 100%; justify-content: center;">Create Link</ha-button>
+          </div>
+        </ha-card>
+      `;
+      this.content = true;
+
+      this.querySelector('#create_link').addEventListener('click', () => {
+        const amount = this.querySelector('#link_amount').value;
+        const note = this.querySelector('#link_note').value;
+
+        if (amount) {
+            this._hass.callService('mypayindia', 'create_payment_link', {
+                amount: parseFloat(amount),
+                note: note
+            });
+
+            this.querySelector('#link_amount').value = '';
+            this.querySelector('#link_note').value = '';
         }
       });
     }
@@ -162,6 +198,7 @@ class MyPayIndiaBalanceCard extends HTMLElement {
 }
 
 customElements.define('mypayindia-transfer-card', MyPayIndiaTransferCard);
+customElements.define('mypayindia-create-link-card', MyPayIndiaCreateLinkCard);
 customElements.define('mypayindia-links-card', MyPayIndiaLinksCard);
 customElements.define('mypayindia-history-card', MyPayIndiaHistoryCard);
 customElements.define('mypayindia-balance-card', MyPayIndiaBalanceCard);
@@ -169,6 +206,7 @@ customElements.define('mypayindia-balance-card', MyPayIndiaBalanceCard);
 window.customCards = window.customCards || [];
 window.customCards.push(
   { type: "mypayindia-transfer-card", name: "MyPayIndia Transfer", description: "Send money via MyPayIndia" },
+  { type: "mypayindia-create-link-card", name: "MyPayIndia Create Link", description: "Create a payment link" },
   { type: "mypayindia-links-card", name: "MyPayIndia Links", description: "Active payment links" },
   { type: "mypayindia-history-card", name: "MyPayIndia History", description: "Transaction history" },
   { type: "mypayindia-balance-card", name: "MyPayIndia Balance", description: "Current balance" }
