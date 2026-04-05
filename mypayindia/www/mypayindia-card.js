@@ -92,7 +92,7 @@ class MyPayIndiaLinksCard extends HTMLElement {
           <ha-card>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 16px 16px 16px;">
                   <div style="font-size: 20px; font-weight: 400; color: var(--ha-card-header-color, var(--primary-text-color));">Active Payment Links</div>
-                  <ha-icon-button id="refresh_links" icon="mdi:refresh"></ha-icon-button>
+                  <ha-icon icon="mdi:refresh" id="refresh_links" style="cursor: pointer; color: var(--secondary-text-color);"></ha-icon>
               </div>
               <div class="card-content" id="links-container" style="display: flex; flex-direction: column; gap: 12px; padding-top: 0;"></div>
           </ha-card>
@@ -152,7 +152,7 @@ class MyPayIndiaHistoryCard extends HTMLElement {
           <ha-card>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 16px 16px 16px;">
                   <div style="font-size: 20px; font-weight: 400; color: var(--ha-card-header-color, var(--primary-text-color));">Transaction History</div>
-                  <ha-icon-button id="refresh_history" icon="mdi:refresh"></ha-icon-button>
+                  <ha-icon icon="mdi:refresh" id="refresh_history" style="cursor: pointer; color: var(--secondary-text-color);"></ha-icon>
               </div>
               <div class="card-content" id="history-container" style="display: flex; flex-direction: column; gap: 8px; padding-top: 0;"></div>
           </ha-card>
@@ -197,7 +197,7 @@ class MyPayIndiaHistoryCard extends HTMLElement {
 class MyPayIndiaBalanceCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
-    this.entityId = config.entity || Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_balance'));
+    this.entityId = config.entity || null;
   }
   set hass(hass) {
     this._hass = hass;
@@ -207,19 +207,29 @@ class MyPayIndiaBalanceCard extends HTMLElement {
     const stateObj = hass.states[this.entityId];
     if (!stateObj) return;
 
-    this.innerHTML = `
-      <ha-card>
-        <div class="card-content" style="text-align: center; padding: 32px 16px;">
-            <div style="font-size: 1.2em; color: var(--secondary-text-color); margin-bottom: 8px;">Available Balance</div>
-            <div style="font-size: 3em; font-weight: bold; color: var(--primary-text-color);">
-                ${stateObj.state} <span style="font-size: 0.5em; color: var(--secondary-text-color);">INR</span>
+    if (!this.content) {
+        this.innerHTML = `
+          <ha-card>
+            <div style="display: flex; justify-content: flex-end; padding: 16px 16px 0 16px;">
+                <ha-icon icon="mdi:refresh" id="refresh_balance" style="cursor: pointer; color: var(--secondary-text-color);"></ha-icon>
             </div>
-            <div style="margin-top: 16px; font-size: 0.9em; color: var(--secondary-text-color);">
-                Account: ${stateObj.attributes.first_name} ${stateObj.attributes.last_name} (@${stateObj.attributes.username})
+            <div class="card-content" style="text-align: center; padding: 0 16px 32px 16px;">
+                <div style="font-size: 1.2em; color: var(--secondary-text-color); margin-bottom: 8px;">Available Balance</div>
+                <div style="font-size: 3em; font-weight: bold; color: var(--primary-text-color);">
+                    <span id="balance_amount"></span> <span style="font-size: 0.5em; color: var(--secondary-text-color);">INR</span>
+                </div>
+                <div style="margin-top: 16px; font-size: 0.9em; color: var(--secondary-text-color);" id="account_details"></div>
             </div>
-        </div>
-      </ha-card>
-    `;
+          </ha-card>
+        `;
+        this.content = true;
+        this.querySelector('#refresh_balance').addEventListener('click', () => {
+            this._hass.callService('homeassistant', 'update_entity', { entity_id: this.entityId });
+        });
+    }
+
+    this.querySelector('#balance_amount').innerText = stateObj.state;
+    this.querySelector('#account_details').innerText = `Account: ${stateObj.attributes.first_name} ${stateObj.attributes.last_name} (@${stateObj.attributes.username})`;
   }
 }
 
