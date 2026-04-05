@@ -1,6 +1,5 @@
 import voluptuous as vol
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
 from .const import DOMAIN
 from .coordinator import MyPayIndiaCoordinator
 
@@ -11,14 +10,16 @@ async def async_setup(hass: HomeAssistant, config: dict):
 async def async_setup_entry(hass: HomeAssistant, entry):
     coordinator = MyPayIndiaCoordinator(
         hass,
-        entry.data["username"],
-        entry.data["password"],
+        entry.data.get("username"),
+        entry.data.get("password"),
     )
     
     await coordinator.async_config_entry_first_refresh()
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+
+    entry.async_on_unload(entry.add_update_listener(update_listener))
 
     async def handle_transfer(call):
         amount = call.data.get("amount")
@@ -40,3 +41,12 @@ async def async_setup_entry(hass: HomeAssistant, entry):
     hass.services.async_register(DOMAIN, "claim_payment_link", handle_claim_link)
 
     return True
+
+async def async_unload_entry(hass: HomeAssistant, entry):
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id)
+    return unload_ok
+
+async def update_listener(hass: HomeAssistant, entry):
+    await hass.config_entries.async_reload(entry.entry_id)
