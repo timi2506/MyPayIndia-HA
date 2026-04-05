@@ -5,7 +5,7 @@ class MyPayIndiaCard extends HTMLElement {
       this.innerHTML = `
         <ha-card header="MyPayIndia Transfer">
           <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
-            <ha-textfield id="recipient" label="Recipient ID" type="number"></ha-textfield>
+            <ha-textfield id="recipient" label="Recipient"></ha-textfield>
             <ha-textfield id="amount" label="Amount (INR)" type="number"></ha-textfield>
             <ha-textfield id="note" label="Note (Optional)"></ha-textfield>
             <mwc-button id="send" raised label="Send Money"></mwc-button>
@@ -21,7 +21,7 @@ class MyPayIndiaCard extends HTMLElement {
 
         if (recipient && amount) {
             this._hass.callService('mypayindia', 'transfer', {
-                recipient: parseInt(recipient),
+                recipient: recipient,
                 amount: parseFloat(amount),
                 note: note
             });

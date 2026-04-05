@@ -18,9 +18,6 @@ class MyPayIndiaCoordinator(DataUpdateCoordinator):
         self.username = username
         self.password = password
         self.session = requests.Session()
-        self.transfer_amount = 0.0
-        self.transfer_recipient = ""
-        self.transfer_note = ""
 
     def login(self):
         self.session.post(
@@ -57,12 +54,12 @@ class MyPayIndiaCoordinator(DataUpdateCoordinator):
 
     def transfer(self, amount, recipient, note=""):
         self.login()
-        payload = {"amount": str(amount), "recipient": recipient, "note": note}
+        payload = {"amount": float(amount), "recipient": str(recipient), "note": str(note)}
         return self.session.post(f"{BASE_URL}/transfer", json=payload).json()
 
     def create_payment_link(self, amount, note=""):
         self.login()
-        payload = {"amount": float(amount), "note": note}
+        payload = {"amount": float(amount), "note": str(note)}
         return self.session.post(f"{BASE_URL}/create_payment_link", json=payload).json()
 
     def claim_payment_link(self, token):
