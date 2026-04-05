@@ -77,7 +77,7 @@ class MyPayIndiaCreateLinkCard extends HTMLElement {
 class MyPayIndiaLinksCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
-    this.entityId = config.entity || Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_total_active_links'));
+    this.entityId = config.entity || null;
   }
   set hass(hass) {
     this._hass = hass;
@@ -87,13 +87,27 @@ class MyPayIndiaLinksCard extends HTMLElement {
     const stateObj = hass.states[this.entityId];
     if (!stateObj) return;
 
+    if (!this.content) {
+        this.innerHTML = `
+          <ha-card>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 16px 16px 16px;">
+                  <div style="font-size: 20px; font-weight: 400; color: var(--ha-card-header-color, var(--primary-text-color));">Active Payment Links</div>
+                  <ha-icon-button id="refresh_links" icon="mdi:refresh"></ha-icon-button>
+              </div>
+              <div class="card-content" id="links-container" style="display: flex; flex-direction: column; gap: 12px; padding-top: 0;"></div>
+          </ha-card>
+        `;
+        this.content = true;
+        this.querySelector('#refresh_links').addEventListener('click', () => {
+            this._hass.callService('homeassistant', 'update_entity', { entity_id: this.entityId });
+        });
+    }
+
     const links = stateObj.attributes.links || [];
-    
-    let html = `<ha-card header="Active Payment Links">
-                  <div class="card-content" style="display: flex; flex-direction: column; gap: 12px;">`;
+    let html = '';
     
     if (links.length === 0) {
-        html += `<p style="color: var(--secondary-text-color);">No active payment links.</p>`;
+        html = `<p style="color: var(--secondary-text-color);">No active payment links.</p>`;
     } else {
         links.forEach(link => {
             html += `
@@ -110,16 +124,15 @@ class MyPayIndiaLinksCard extends HTMLElement {
         });
     }
     
-    html += `</div></ha-card>`;
-    this.innerHTML = html;
+    this.querySelector('#links-container').innerHTML = html;
   }
 }
 
 class MyPayIndiaHistoryCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
-    this.entityId = config.entity || Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_total_transferred'));
-    this.balanceEntityId = Object.keys(this._hass?.states || {}).find(eid => eid.startsWith('sensor.mypayindia_balance'));
+    this.entityId = config.entity || null;
+    this.balanceEntityId = null;
   }
   set hass(hass) {
     this._hass = hass;
@@ -134,14 +147,28 @@ class MyPayIndiaHistoryCard extends HTMLElement {
     const balanceObj = hass.states[this.balanceEntityId];
     if (!stateObj || !balanceObj) return;
 
+    if (!this.content) {
+        this.innerHTML = `
+          <ha-card>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 16px 16px 16px;">
+                  <div style="font-size: 20px; font-weight: 400; color: var(--ha-card-header-color, var(--primary-text-color));">Transaction History</div>
+                  <ha-icon-button id="refresh_history" icon="mdi:refresh"></ha-icon-button>
+              </div>
+              <div class="card-content" id="history-container" style="display: flex; flex-direction: column; gap: 8px; padding-top: 0;"></div>
+          </ha-card>
+        `;
+        this.content = true;
+        this.querySelector('#refresh_history').addEventListener('click', () => {
+            this._hass.callService('homeassistant', 'update_entity', { entity_id: this.entityId });
+        });
+    }
+
     const txns = stateObj.attributes.transactions || [];
     const myUsername = balanceObj.attributes.username;
-    
-    let html = `<ha-card header="Transaction History">
-                  <div class="card-content" style="display: flex; flex-direction: column; gap: 8px;">`;
+    let html = '';
     
     if (txns.length === 0) {
-        html += `<p style="color: var(--secondary-text-color);">No recent transactions.</p>`;
+        html = `<p style="color: var(--secondary-text-color);">No recent transactions.</p>`;
     } else {
         txns.forEach(txn => {
             const isSender = txn.sender_name === myUsername;
@@ -163,8 +190,7 @@ class MyPayIndiaHistoryCard extends HTMLElement {
         });
     }
     
-    html += `</div></ha-card>`;
-    this.innerHTML = html;
+    this.querySelector('#history-container').innerHTML = html;
   }
 }
 

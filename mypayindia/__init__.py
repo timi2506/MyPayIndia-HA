@@ -35,15 +35,18 @@ async def async_setup_entry(hass: HomeAssistant, entry):
         recipient = call.data.get("recipient")
         note = call.data.get("note", "")
         await hass.async_add_executor_job(coordinator.transfer, amount, recipient, note)
+        await coordinator.async_request_refresh()
 
     async def handle_create_link(call):
         amount = call.data.get("amount")
         note = call.data.get("note", "")
         await hass.async_add_executor_job(coordinator.create_payment_link, amount, note)
+        await coordinator.async_request_refresh()
 
     async def handle_claim_link(call):
         token = call.data.get("token")
         await hass.async_add_executor_job(coordinator.claim_payment_link, token)
+        await coordinator.async_request_refresh()
 
     hass.services.async_register(DOMAIN, "transfer", handle_transfer)
     hass.services.async_register(DOMAIN, "create_payment_link", handle_create_link)
