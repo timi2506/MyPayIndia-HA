@@ -1,0 +1,54 @@
+transfer:
+  name: Transfer Money
+  description: Transfer money to a recipient.
+  fields:
+    amount:
+      name: Amount
+      description: Amount to transfer.
+      required: true
+      example: 123.45
+      selector:
+        text:
+    recipient:
+      name: Recipient ID
+      description: The ID of the recipient.
+      required: true
+      example: 41
+      selector:
+        number:
+    note:
+      name: Note
+      description: An optional note for the transfer.
+      required: false
+      example: "Dinner payment"
+      selector:
+        text:
+create_payment_link:
+  name: Create Payment Link
+  description: Create a shareable payment link.
+  fields:
+    amount:
+      name: Amount
+      description: Amount for the payment link.
+      required: true
+      example: 123.45
+      selector:
+        text:
+    note:
+      name: Note
+      description: An optional note for the link.
+      required: false
+      example: "My Note India"
+      selector:
+        text:
+claim_payment_link:
+  name: Claim Payment Link
+  description: Claim a payment link using its token.
+  fields:
+    token:
+      name: Token
+      description: The token of the payment link.
+      required: true
+      example: "0123456789abcdef"
+      selector:
+        text:
