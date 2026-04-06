@@ -25,4 +25,6 @@ After installing this custom component you can add the cards for MyPayIndia by
 3. Adding the Cards to one of your Dashboard's
 
 > [!TIP]
-> If you face issues with cards not changing after an update, you can add ?v=randomNumber after /mypayindia_static/mypayindia-card.js, as long as the randomNumber is different from previous numbers (if you did this before)
+> If you face issues with cards not changing after an update, you can either
+> a) Clear your Browser Caches and refresh OR
+> b) Add ?v=randomNumber after /mypayindia_static/mypayindia-card.js, as long as the randomNumber is different from previous numbers (if you did this before)
