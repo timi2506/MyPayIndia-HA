@@ -1,10 +1,11 @@
 {
   "domain": "mypayindia",
   "name": "MyPayIndia",
-  "version": "1.0.0",
-  "documentation": "",
+  "version": "1.1.0",
+  "documentation": "https://github.com/timi2506/MyPayIndia-HA",
+  "issue_tracker": "https://github.com/timi2506/MyPayIndia-HA/issues",
+  "codeowners": ["@timi2506"],
   "requirements": ["requests"],
   "dependencies": [],
-  "codeowners": [],
   "config_flow": true
 }
