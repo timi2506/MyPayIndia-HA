@@ -1,5 +1,7 @@
 # MyPayIndia-HA
 A simple HomeAssistant Integration for MyPayIndia
+<img width="1457" height="1056" alt="Screenshot 2026-04-06 at 11 19 58" src="https://github.com/user-attachments/assets/0b41eb1f-95ff-48cf-9695-6a60deca4ff4" />
+
 
 ## Installation
 ### Via HACS (easiest)
