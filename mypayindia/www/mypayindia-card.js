@@ -92,7 +92,9 @@ class MyPayIndiaLinksCard extends HTMLElement {
           <ha-card>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 16px 16px 16px;">
                   <div style="font-size: 20px; font-weight: 400; color: var(--ha-card-header-color, var(--primary-text-color));">Active Payment Links</div>
-                  <ha-icon icon="mdi:refresh" id="refresh_links" style="cursor: pointer; color: var(--secondary-text-color);"></ha-icon>
+                  <svg id="refresh_links" style="width:24px;height:24px;cursor:pointer;fill:var(--secondary-text-color);" viewBox="0 0 24 24">
+                      <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                  </svg>
               </div>
               <div class="card-content" id="links-container" style="display: flex; flex-direction: column; gap: 12px; padding-top: 0;"></div>
           </ha-card>
@@ -152,7 +154,9 @@ class MyPayIndiaHistoryCard extends HTMLElement {
           <ha-card>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 16px 16px 16px;">
                   <div style="font-size: 20px; font-weight: 400; color: var(--ha-card-header-color, var(--primary-text-color));">Transaction History</div>
-                  <ha-icon icon="mdi:refresh" id="refresh_history" style="cursor: pointer; color: var(--secondary-text-color);"></ha-icon>
+                  <svg id="refresh_history" style="width:24px;height:24px;cursor:pointer;fill:var(--secondary-text-color);" viewBox="0 0 24 24">
+                      <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                  </svg>
               </div>
               <div class="card-content" id="history-container" style="display: flex; flex-direction: column; gap: 8px; padding-top: 0;"></div>
           </ha-card>
@@ -211,7 +215,9 @@ class MyPayIndiaBalanceCard extends HTMLElement {
         this.innerHTML = `
           <ha-card>
             <div style="display: flex; justify-content: flex-end; padding: 16px 16px 0 16px;">
-                <ha-icon icon="mdi:refresh" id="refresh_balance" style="cursor: pointer; color: var(--secondary-text-color);"></ha-icon>
+                <svg id="refresh_balance" style="width:24px;height:24px;cursor:pointer;fill:var(--secondary-text-color);" viewBox="0 0 24 24">
+                    <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                </svg>
             </div>
             <div class="card-content" style="text-align: center; padding: 0 16px 32px 16px;">
                 <div style="font-size: 1.2em; color: var(--secondary-text-color); margin-bottom: 8px;">Available Balance</div>
