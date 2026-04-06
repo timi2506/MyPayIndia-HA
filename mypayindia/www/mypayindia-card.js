@@ -1,6 +1,10 @@
 class MyPayIndiaTransferCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
     if (!this.content) {
       this.innerHTML = `
         <ha-card header="MyPayIndia - Send Money">
@@ -33,14 +37,15 @@ class MyPayIndiaTransferCard extends HTMLElement {
       });
     }
   }
-  set hass(hass) {
-    this._hass = hass;
-  }
 }
 
 class MyPayIndiaCreateLinkCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
     if (!this.content) {
       this.innerHTML = `
         <ha-card header="Create Payment Link">
@@ -69,9 +74,6 @@ class MyPayIndiaCreateLinkCard extends HTMLElement {
       });
     }
   }
-  set hass(hass) {
-    this._hass = hass;
-  }
 }
 
 class MyPayIndiaLinksCard extends HTMLElement {
@@ -79,6 +81,7 @@ class MyPayIndiaLinksCard extends HTMLElement {
     this.config = config;
     this.entityId = config.entity || null;
   }
+
   set hass(hass) {
     this._hass = hass;
     if (!this.entityId) {
@@ -136,6 +139,7 @@ class MyPayIndiaHistoryCard extends HTMLElement {
     this.entityId = config.entity || null;
     this.balanceEntityId = null;
   }
+
   set hass(hass) {
     this._hass = hass;
     if (!this.entityId) {
@@ -203,6 +207,7 @@ class MyPayIndiaBalanceCard extends HTMLElement {
     this.config = config;
     this.entityId = config.entity || null;
   }
+
   set hass(hass) {
     this._hass = hass;
     if (!this.entityId) {
