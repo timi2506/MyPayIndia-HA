@@ -2,6 +2,7 @@ import voluptuous as vol
 from pathlib import Path
 from homeassistant.core import HomeAssistant
 from homeassistant.components.http import StaticPathConfig
+from homeassistant.components.frontend import add_extra_js_url
 from .const import DOMAIN
 from .coordinator import MyPayIndiaCoordinator
 
@@ -25,6 +26,8 @@ async def async_setup_entry(hass: HomeAssistant, entry):
     await hass.http.async_register_static_paths([
         StaticPathConfig("/mypayindia_static", str(files_path), True)
     ])
+
+    add_extra_js_url(hass, "/mypayindia_static/mypayindia-card.js")
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
