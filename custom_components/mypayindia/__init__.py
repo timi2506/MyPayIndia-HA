@@ -2,13 +2,28 @@ import voluptuous as vol
 from pathlib import Path
 from homeassistant.core import HomeAssistant
 from homeassistant.components.http import StaticPathConfig
-from .const import DOMAIN
+from homeassistant.helpers import config_entry_oauth2_flow
+from .const import DOMAIN, DEFAULT_CLIENT_ID, OAUTH2_AUTHORIZE_URL, OAUTH2_TOKEN_URL
 from .coordinator import MyPayIndiaCoordinator
 
 PLATFORMS = ["sensor"]
 
 async def async_setup(hass: HomeAssistant, config: dict):
     hass.data.setdefault(DOMAIN, {})
+
+    # Register default PKCE OAuth2 implementation using the public client ID
+    config_entry_oauth2_flow.async_register_implementation(
+        hass,
+        DOMAIN,
+        config_entry_oauth2_flow.LocalOAuth2ImplementationWithPkce(
+            hass=hass,
+            domain=DOMAIN,
+            client_id=DEFAULT_CLIENT_ID,
+            authorize_url=OAUTH2_AUTHORIZE_URL,
+            token_url=OAUTH2_TOKEN_URL,
+        ),
+    )
+
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry):
