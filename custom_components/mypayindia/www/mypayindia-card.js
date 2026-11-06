@@ -9,8 +9,8 @@ class MyPayIndiaTransferCard extends HTMLElement {
       this.innerHTML = `
         <ha-card header="MyPayIndia - Send Money">
           <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
-            <ha-textfield id="recipient" label="Recipient Username"></ha-textfield>
-            <ha-textfield id="amount" label="Amount (INR)" type="number"></ha-textfield>
+            <ha-textfield id="recipient" label="Recipient Username or ID"></ha-textfield>
+            <ha-textfield id="amount" label="Amount (INR)" type="number" step="0.01"></ha-textfield>
             <ha-textfield id="note" label="Note (Optional)"></ha-textfield>
             <ha-button raised id="send" style="width: 100%; justify-content: center;">Send Money</ha-button>
           </div>
@@ -50,7 +50,7 @@ class MyPayIndiaCreateLinkCard extends HTMLElement {
       this.innerHTML = `
         <ha-card header="Create Payment Link">
           <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
-            <ha-textfield id="link_amount" label="Amount (INR)" type="number"></ha-textfield>
+            <ha-textfield id="link_amount" label="Amount (INR)" type="number" step="0.01"></ha-textfield>
             <ha-textfield id="link_note" label="Note (Optional)"></ha-textfield>
             <ha-button raised id="create_link" style="width: 100%; justify-content: center;">Create Link</ha-button>
           </div>
@@ -115,10 +115,12 @@ class MyPayIndiaLinksCard extends HTMLElement {
         html = `<p style="color: var(--secondary-text-color);">No active payment links.</p>`;
     } else {
         links.forEach(link => {
+            const rawAmount = typeof link.amount === 'number' ? link.amount : parseFloat(link.amount || 0);
+            const formattedAmount = isNaN(rawAmount) ? link.amount : rawAmount.toFixed(2);
             html += `
             <div style="padding: 12px; border: 1px solid var(--divider-color); border-radius: 8px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <strong style="font-size: 1.1em;">${link.amount} INR</strong>
+                    <strong style="font-size: 1.1em;">${formattedAmount} INR</strong>
                     <span style="color: var(--secondary-text-color);">${link.status}</span>
                 </div>
                 ${link.note ? `<div style="margin-bottom: 8px;"><em>"${link.note}"</em></div>` : ''}
@@ -179,11 +181,15 @@ class MyPayIndiaHistoryCard extends HTMLElement {
         html = `<p style="color: var(--secondary-text-color);">No recent transactions.</p>`;
     } else {
         txns.forEach(txn => {
-            const isSender = txn.sender_name === myUsername;
+            const senderName = (typeof txn.sender === 'object' && txn.sender !== null) ? txn.sender.username : txn.sender_name;
+            const recipientName = (typeof txn.recipient === 'object' && txn.recipient !== null) ? txn.recipient.username : (txn.target_name || txn.recipient_name);
+            const isSender = senderName === myUsername;
             const amountColor = isSender ? 'var(--error-color)' : 'var(--success-color)';
             const amountPrefix = isSender ? '-' : '+';
-            const relatedUser = isSender ? `To: ${txn.target_name}` : `From: ${txn.sender_name}`;
+            const relatedUser = isSender ? `To: ${recipientName || 'Unknown'}` : `From: ${senderName || 'Unknown'}`;
             const date = new Date(txn.created).toLocaleString();
+            const rawAmount = typeof txn.amount === 'number' ? txn.amount : parseFloat(txn.amount || 0);
+            const formattedAmount = isNaN(rawAmount) ? txn.amount : rawAmount.toFixed(2);
 
             html += `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--divider-color);">
@@ -192,7 +198,7 @@ class MyPayIndiaHistoryCard extends HTMLElement {
                     <span style="font-size: 0.8em; color: var(--secondary-text-color);">${date}</span>
                 </div>
                 <div style="font-weight: bold; color: ${amountColor};">
-                    ${amountPrefix}${txn.amount} INR
+                    ${amountPrefix}${formattedAmount} INR
                 </div>
             </div>`;
         });
@@ -239,8 +245,9 @@ class MyPayIndiaBalanceCard extends HTMLElement {
         });
     }
 
-    this.querySelector('#balance_amount').innerText = stateObj.state;
-    this.querySelector('#account_details').innerText = `Account: ${stateObj.attributes.first_name} ${stateObj.attributes.last_name} (@${stateObj.attributes.username})`;
+    const rawBalance = parseFloat(stateObj.state);
+    this.querySelector('#balance_amount').innerText = isNaN(rawBalance) ? stateObj.state : rawBalance.toFixed(2);
+    this.querySelector('#account_details').innerText = `Account: ${stateObj.attributes.first_name || ''} ${stateObj.attributes.last_name || ''} (@${stateObj.attributes.username || ''})`;
   }
 }
 

@@ -22,8 +22,9 @@ class MyPayIndiaBalanceSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         data = self.coordinator.data.get("info", {})
-        if data:
-            return float(data.get("balance", 0))
+        if data and "balance" in data:
+            # In v2, balance is returned in paisa (100 paisa = 1 INR)
+            return round(float(data["balance"]) / 100, 2)
         return None
 
     @property
@@ -33,8 +34,11 @@ class MyPayIndiaBalanceSensor(CoordinatorEntity, SensorEntity):
             "first_name": data.get("first_name"),
             "last_name": data.get("last_name"),
             "email": data.get("email"),
-            "username": self.coordinator.username,
+            "username": data.get("username") or self.coordinator.username,
             "created": data.get("created"),
+            "role": data.get("role"),
+            "mfa_enabled": data.get("mfa_enabled"),
+            "balance_paisa": data.get("balance"),
         }
 
 
@@ -55,14 +59,23 @@ class MyPayIndiaPaymentLinksSummarySensor(CoordinatorEntity, SensorEntity):
         formatted_links = []
         for link in links:
             token = link.get("token", "")
+            amount = link.get("amount")
+            if "amount_paisa" in link:
+                amount_inr = link["amount"]
+            else:
+                amount_inr = round(float(amount) / 100, 2) if amount else 0.0
+
             formatted_links.append({
                 "id": link.get("id"),
                 "token": token,
-                "amount": link.get("amount"),
+                "amount": amount_inr,
+                "amount_paisa": link.get("amount_paisa", link.get("amount")),
                 "note": link.get("note"),
                 "status": link.get("status"),
                 "created": link.get("created"),
-                "claim_url": f"https://mypayindia.com/pay/link?token={token}" if token else None
+                "claim_url": link.get("claim_url") or link.get("url") or (
+                    f"https://mypayindia.com/pay/link?token={token}" if token else None
+                ),
             })
         return {"links": formatted_links}
 
@@ -79,8 +92,14 @@ class MyPayIndiaTotalTransferredSensor(CoordinatorEntity, SensorEntity):
         txns = self.coordinator.data.get("transactions", [])
         total = 0.0
         for txn in txns:
-            if txn.get("sender_name") == self.coordinator.username:
-                total += float(txn.get("amount", 0))
+            sender_name = txn.get("sender_name")
+            if not sender_name and isinstance(txn.get("sender"), dict):
+                sender_name = txn["sender"].get("username")
+            if sender_name == self.coordinator.username:
+                amount = txn.get("amount", 0)
+                if "amount_paisa" not in txn and amount > 0:
+                    amount = amount / 100
+                total += float(amount)
         return round(total, 2)
 
     @property

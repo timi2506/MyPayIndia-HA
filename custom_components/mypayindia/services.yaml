@@ -4,18 +4,18 @@ transfer:
   fields:
     amount:
       name: Amount
-      description: Amount to transfer.
+      description: Amount to transfer (in INR).
       required: true
       example: 123.45
       selector:
         text:
     recipient:
-      name: Recipient ID
-      description: The ID of the recipient.
+      name: Recipient
+      description: The username or user ID of the recipient.
       required: true
-      example: 41
+      example: "johnpayment"
       selector:
-        number:
+        text:
     note:
       name: Note
       description: An optional note for the transfer.
@@ -29,7 +29,7 @@ create_payment_link:
   fields:
     amount:
       name: Amount
-      description: Amount for the payment link.
+      description: Amount for the payment link (in INR).
       required: true
       example: 123.45
       selector:
@@ -38,12 +38,23 @@ create_payment_link:
       name: Note
       description: An optional note for the link.
       required: false
-      example: "My Note India"
+      example: "Dinner payment"
       selector:
         text:
 claim_payment_link:
   name: Claim Payment Link
   description: Claim a payment link using its token.
+  fields:
+    token:
+      name: Token
+      description: The token of the payment link.
+      required: true
+      example: "0123456789abcdef"
+      selector:
+        text:
+cancel_payment_link:
+  name: Cancel Payment Link
+  description: Cancel your payment link and refund the amount using its token.
   fields:
     token:
       name: Token

@@ -21,6 +21,10 @@ curl -sSL https://raw.githubusercontent.com/timi2506/MyPayIndia-HA/main/install.
 ```
 ## Configuration
 
+When adding the integration in Home Assistant, you can choose between two authentication methods:
+- **MyPayIndia Identity (OAuth2)**: Uses standard OpenID Connect with PKCE. Requires an app registered on [MyPayIndia Developer Apps](https://mypayindia.com/developer/apps) with "Full account access" enabled.
+- **Username and Password**: Directly log in with your credentials and optional 2FA TOTP code.
+
 After installing this custom component you can add the cards for MyPayIndia by 
 1. Going to: `YOUR_HOMEASSISTANT_BASE_URL/config/lovelace/resources`
 2. Pressing "Add Resource" and entering: `/mypayindia_static/mypayindia-card.js` + selecting "JavaScript module"

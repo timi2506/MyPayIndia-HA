@@ -14,8 +14,12 @@ async def async_setup(hass: HomeAssistant, config: dict):
 async def async_setup_entry(hass: HomeAssistant, entry):
     coordinator = MyPayIndiaCoordinator(
         hass,
-        entry.data.get("username"),
-        entry.data.get("password"),
+        username=entry.data.get("username"),
+        password=entry.data.get("password"),
+        totp_code=entry.data.get("totp_code"),
+        session_id=entry.data.get("session_id"),
+        auth_method=entry.data.get("auth_method", "password"),
+        entry=entry,
     )
     
     await coordinator.async_config_entry_first_refresh()
@@ -48,9 +52,15 @@ async def async_setup_entry(hass: HomeAssistant, entry):
         await hass.async_add_executor_job(coordinator.claim_payment_link, token)
         await coordinator.async_request_refresh()
 
+    async def handle_cancel_link(call):
+        token = call.data.get("token")
+        await hass.async_add_executor_job(coordinator.cancel_payment_link, token)
+        await coordinator.async_request_refresh()
+
     hass.services.async_register(DOMAIN, "transfer", handle_transfer)
     hass.services.async_register(DOMAIN, "create_payment_link", handle_create_link)
     hass.services.async_register(DOMAIN, "claim_payment_link", handle_claim_link)
+    hass.services.async_register(DOMAIN, "cancel_payment_link", handle_cancel_link)
 
     return True
 

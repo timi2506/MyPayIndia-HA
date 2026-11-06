@@ -1,0 +1,53 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select Authentication Method",
+        "description": "Choose how you want to sign in to MyPayIndia.",
+        "menu_options": {
+          "oauth": "MyPayIndia Identity (OAuth2)",
+          "credentials": "Username and Password"
+        }
+      },
+      "credentials": {
+        "title": "Enter MyPayIndia Credentials",
+        "description": "Log in with your MyPayIndia account credentials.",
+        "data": {
+          "username": "Username or Email",
+          "password": "Password",
+          "totp_code": "2FA TOTP Code (Optional)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate MyPayIndia",
+        "description": "Your MyPayIndia session has expired. Please re-authenticate."
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid username or password.",
+      "invalid_2fa": "Invalid or missing 2FA code.",
+      "password_auth_disabled": "Password authentication is disabled on this account. Please use OAuth.",
+      "cannot_connect": "Failed to connect to MyPayIndia.",
+      "oauth_error": "Failed to obtain API session from MyPayIndia Identity."
+    },
+    "abort": {
+      "single_instance_allowed": "Only a single MyPayIndia integration is allowed.",
+      "oauth_error": "Failed to obtain API session from MyPayIndia Identity.",
+      "cannot_connect": "Failed to connect to MyPayIndia.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "MyPayIndia Options",
+        "description": "Update credentials for your MyPayIndia account.",
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "totp_code": "2FA TOTP Code (Optional)"
+        }
+      }
+    }
+  }
+}
